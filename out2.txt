@@ -1,0 +1,37 @@
+PROGRAM
+ OPENTAG
+  ID = Students
+ E
+  OPENTAGATTR
+   ID = Student
+  IDNUM = 1
+  Name = Mahmoud
+  AGENUM = 22
+  PHONE = 01111225555
+  CLOSTAGATTR
+ E
+  OPENTAGATTR
+   ID = Student
+  IDNUM = 2
+  Name = Soda
+  AGENUM = 22
+  PHONE = 0155256863
+  CLOSTAGATTR
+ E
+  OPENTAGATTR
+   ID = Student
+  IDNUM = 3
+  Name = Alaa
+  AGENUM = 21
+  PHONE = 010545559889
+  CLOSTAGATTR
+ E
+  OPENTAGATTR
+   ID = Student
+  IDNUM = 4
+  Name = Mahmoud
+  AGENUM = 22
+  PHONE = 010545559889
+  CLOSTAGATTR
+ CLOSENTAG
+  ID = Students

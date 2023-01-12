@@ -1,0 +1,161 @@
+options {
+    STATIC=true;
+	MULTI=true;
+	VISITOR=true;
+}
+
+PARSER_BEGIN(Parse_xml)
+
+	import java.io.File;
+	import java.io.FileInputStream;
+	import java.io.IOException;
+	import java.io.PrintStream;
+	
+	public class Parse_xml{
+		public static void main(String[] args) throws Exception{
+			Parse_xml parse = new Parse_xml(System.in);
+			SimpleNode root = parse.program();
+//			root.dump("");
+			PrintStream out = new PrintStream(new File("./out2.txt"));
+	  		MyVisitor v = new MyVisitor(out);
+			root.jjtAccept(v,null);
+			out.close();
+		}
+	}
+PARSER_END(Parse_xml)
+
+SKIP:
+	{
+	  " "
+	  |
+	  "\t"
+	  |
+	  "\n"
+	  | 
+	  "\r"
+	  |
+	  "\r\n"
+	}
+	
+TOKEN:
+	{
+  		< SMALLER : "<" >
+  		| 
+		< GREATER : ">" >
+		| 
+		< BACKSLASH : "/" >
+		| 
+		< EQUEL : "=" >
+		| 
+		< QUETE : "\"" >
+		| 
+		< IDATTR : "id" >
+		|
+		< NAMEATTR : "name" >
+		| 
+		< PHONEATTR : "phone" >
+		|
+		< AGEATTR : "age" >
+		|
+		< ID : ((< ALPHAID >)(< ALPHAID >)*) >
+		| 
+		< NUM : ((< DIGITONE >)(< DIGIT >)*) >
+		| 
+		< PHONE : (("01")(< DIGIT >)*) >
+		|  
+		< COMMA : "," >
+		|
+		< SMALL : "</" >	 
+	}
+
+TOKEN:
+	{
+	  	< #ALPHAID : ["$","_","a"-"z","A"-"Z"] >
+	  	| 
+	  	< #DIGIT : ["0"-"9"] >
+	 	| 
+	  	< #DIGITONE : ["1"-"9"] >
+	}
+
+//	S - > OT E CT
+	SimpleNode program() #PROGRAM :
+	{}
+	{
+	  OT() (E())+ CT() <EOF> {return jjtThis;}
+	}
+
+//	OT - > < ID >
+	void OT() #OPENTAG :
+	{}
+	{
+	  <SMALLER> ID() <GREATER>
+	}
+
+//	CT - > </ ID >
+	void CT() #CLOSENTAG :
+	{}
+	{
+	  <SMALL> ID() <GREATER> 
+	}
+
+//	E - > OTA id="2" name="mahmoud" age="22" phone="+20106042" CTA
+	void E() #E :
+	{}
+	{
+	  OTA()
+	  	<IDATTR> <EQUEL> <QUETE> IDNUM() <QUETE> <COMMA>
+	  	<NAMEATTR> <EQUEL> <QUETE> Name() <QUETE> <COMMA>
+	  	<AGEATTR> <EQUEL> <QUETE> AGENUM() <QUETE> <COMMA>
+	  	<PHONEATTR> <EQUEL> <QUETE> PHONE() <QUETE>
+	  CTA()
+	}
+	
+
+//	ID - > id
+	void ID() #ID :
+	{Token t;}
+	{
+	  t = <ID> {jjtThis.jjtSetValue(t.image);}
+	}
+
+//	IDNum - > Num
+	void IDNUM() #IDNUM :
+	{Token t;}
+	{
+	  t = <NUM> {jjtThis.jjtSetValue(t.image);}
+	}
+
+//  AGENUM - > NUM
+	void AGENUM() #AGENUM :
+	{Token t;}
+	{
+	  t = <NUM> {jjtThis.jjtSetValue(t.image);}
+	}
+	
+//  Name - > Name
+	void Name() #Name:
+	{Token t;}
+	{
+	  t = <ID> {jjtThis.jjtSetValue(t.image);}
+	}
+
+//	phone - > phone
+	void PHONE() #PHONE :
+	{Token t;}
+	{
+	  t = <PHONE> {jjtThis.jjtSetValue(t.image);}
+	}
+
+//	OTA - > < ID
+	void OTA() #OPENTAGATTR :
+	{}
+	{
+	  <SMALLER> ID()
+	}
+
+//	CTA - > / >
+	void CTA() #CLOSTAGATTR:
+	{}
+	{
+	  <BACKSLASH> <GREATER>
+	}
